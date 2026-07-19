@@ -1,19 +1,35 @@
-This is a bare metal LED blinking and GPIO toggling on the LPC55S06-EVK. No HAL (SDK) functions are used. Just direct register access.
-This is a minimal setup and a starting point for any bare metal projects.
+This is a bare-metal USART project for the NXP LPC55S06-EVK. The evaluation board is connected to a Windows 11 PC via a USB-to-UART adapter. The firmware transmits the text "Hello LPC55S06\r\n" every two seconds. On the PC, the terminal program HTerm receives and displays the data.
 
-![](/Doc/IMG_6323.jpg)
+You can use any other terminal program. The communication settings are:
 
-Evaluation board
+- 115200 baud
+- 8 data bits
+- 1 stop bit
+- No parity
 
-![](/Doc/bmp_152_000.bmp)
+![](/Doc/Setup.bmp)
 
-10 ms system tick
+![](/Doc/Frame.bmp)
 
-| Output       | MCU Port | Function | Connector | Connector Pin |
-|--------------|----------|----------|-----------|---------------|
-| 10 ms toggle | P0.9     | GPIO     | J13       | 6             |
-| GND          | GND      | GND      | J10       | 17            |
+![](/Doc/Baudrate.bmp)
+
+![](/Doc/HTerm.png)
+
+
+| Function | Connector | Connector Pin |
+|----------|-----------|---------------|
+| Rx       | J3        | 1             |
+| Tx       | J3        | 2             |
+| GND      | J3        | 3             |
+
+Jumper JP9 must be closed.
+Jumper JP12 must be open.
+
 
 Hardware
 
 LPC55S06-EVK: https://www.nxp.com/design/design-center/software/development-software/mcuxpresso-software-and-tools-/lpcxpresso-boards/lpcxpresso-development-board-for-lpc55s0x-0x-family-of-mcus:LPC55S06-EVK
+
+UART-Adapter: https://www.az-delivery.de/en/products/ftdi-adapter-ft232rl
+
+
