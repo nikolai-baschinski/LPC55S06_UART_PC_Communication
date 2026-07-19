@@ -1,6 +1,5 @@
 #include "LPC55S06.h"
 #include "UART.h"
-#include "stdio.h"
 
 #define IOCON_PIO_FUNC1 0x01u        // Selects pin function 1
 #define IOCON_PIO_SLEW_FAST 0x40u    // Fast slew rate
@@ -30,25 +29,19 @@ void init_UART()
   USART0->BRG = 7;
 }
 
-void UART_write(const char* p_text)
+// non-blocking: if a byte was received, store it in *p_byte and return 1; else return 0
+uint8_t UART_read_char(uint8_t* p_byte)
 {
-  while (*p_text != '\0') {
-    while ((USART0->FIFOSTAT & USART_FIFOSTAT_TXNOTFULL_MASK) == 0); // wait for space in TX FIFO
-    USART0->FIFOWR = *p_text++;
+  if (USART0->FIFOSTAT & USART_FIFOSTAT_RXNOTEMPTY_MASK) {
+    *p_byte = (uint8_t)USART0->FIFORD; // low 8 bits = data; upper status flags are discarded
+    return 1;
   }
+  return 0;
 }
 
-char str[32];
-
-void cyclic_UART(struct ProcessImage* p_pi)
+// send a single byte, blocking until the TX FIFO has space
+void UART_write_char(uint8_t byte)
 {
-  if(p_pi->bme280.temperature != p_pi->bme280_memory.temperature ||
-     p_pi->bme280.pressure != p_pi->bme280_memory.pressure ||
-     p_pi->bme280.humidity != p_pi->bme280_memory.humidity) {
-    sprintf(str, "T=%.1f;P=%u;H=%u\r\n", p_pi->bme280.temperature, p_pi->bme280.pressure, p_pi->bme280.humidity);
-    UART_write(str);
-  }
-  p_pi->bme280_memory.temperature = p_pi->bme280.temperature;
-  p_pi->bme280_memory.pressure = p_pi->bme280.pressure;
-  p_pi->bme280_memory.humidity = p_pi->bme280.humidity;
+  while (!(USART0->FIFOSTAT & USART_FIFOSTAT_TXNOTFULL_MASK)); // wait while TX FIFO is full
+  USART0->FIFOWR = byte;
 }

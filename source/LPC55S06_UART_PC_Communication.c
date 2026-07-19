@@ -5,24 +5,21 @@
 #include "TIMER.h"
 #include "GPIO.h"
 #include "NVIC.h"
-#include "I2C.h"
-#include "bme.h"
-#include "ProcessImage.h"
 
-struct ProcessImage pi={0};
+uint32_t cntr = 0;
 
 int main(void)
 {
   init_UART();
   init_TIMER();
-  init_I2C();
   init_GPIO();
-  init_BME();
   init_NVIC();
-  while(1) {
-    cyclic_BME(&pi.bme280);
-    cyclic_UART(&pi);
-    delay(1000);
+
+  while (1) {
+    uint8_t b;
+    if (UART_read_char(&b)) {
+      UART_write_char(b); // mirror it straight back
+    }
   }
   return 0;
 }
@@ -31,10 +28,10 @@ void CTIMER0_IRQHandler(void)
 {
   CTIMER0->IR = CTIMER_IR_MR0INT_MASK;
 
-  if(pi.cntr_10ms%100 == 0) {
+  if(cntr % 100 == 0) {
     GPIO->NOT[0] = (1UL << 22);
   }
 
-  pi.cntr_10ms++;
+  cntr++;
   GPIO->NOT[0] = (1UL << 9);
 }
