@@ -50,6 +50,7 @@
 #include "PERI_FLASH.h"
 #include "PERI_FLEXCOMM.h"
 #include "PERI_GPIO.h"
+#include "PERI_I2C.h"
 #include "PERI_IOCON.h"
 #include "PERI_PMC.h"
 #include "PERI_PUF_SRAM_CTRL.h"

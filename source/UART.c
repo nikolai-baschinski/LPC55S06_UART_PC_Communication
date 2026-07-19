@@ -1,5 +1,6 @@
 #include "LPC55S06.h"
 #include "UART.h"
+#include "stdio.h"
 
 #define IOCON_PIO_FUNC1 0x01u        // Selects pin function 1
 #define IOCON_PIO_SLEW_FAST 0x40u    // Fast slew rate
@@ -32,8 +33,22 @@ void init_UART()
 void UART_write(const char* p_text)
 {
   while (*p_text != '\0') {
-    while ((USART0->FIFOSTAT & USART_FIFOSTAT_TXNOTFULL_MASK) == 1); // wait for space in TX FIFO
-      USART0->FIFOWR = *p_text++;
+    while ((USART0->FIFOSTAT & USART_FIFOSTAT_TXNOTFULL_MASK) == 0); // wait for space in TX FIFO
+    USART0->FIFOWR = *p_text++;
   }
 }
 
+char str[32];
+
+void cyclic_UART(struct ProcessImage* p_pi)
+{
+  if(p_pi->bme280.temperature != p_pi->bme280_memory.temperature ||
+     p_pi->bme280.pressure != p_pi->bme280_memory.pressure ||
+     p_pi->bme280.humidity != p_pi->bme280_memory.humidity) {
+    sprintf(str, "T=%.1f;P=%u;H=%u\r\n", p_pi->bme280.temperature, p_pi->bme280.pressure, p_pi->bme280.humidity);
+    UART_write(str);
+  }
+  p_pi->bme280_memory.temperature = p_pi->bme280.temperature;
+  p_pi->bme280_memory.pressure = p_pi->bme280.pressure;
+  p_pi->bme280_memory.humidity = p_pi->bme280.humidity;
+}

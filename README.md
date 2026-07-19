@@ -1,4 +1,4 @@
-This is a bare-metal USART project for the NXP LPC55S06-EVK. The evaluation board is connected to a Windows 11 PC via a USB-to-UART adapter. The firmware transmits the text "Hello LPC55S06\r\n" every two seconds. On the PC, the terminal program HTerm receives and displays the data.
+This is a bare-metal USART project for the NXP LPC55S06-EVK. The evaluation board is connected to a Windows 11 PC via a USB-to-UART adapter. The firmware transmits BME280 sensor data (temperature, air pressure, and humidity) to the PC whenever the values change. On the PC, the terminal program HTerm receives and displays the data..
 
 You can use any other terminal program. The communication settings are:
 
