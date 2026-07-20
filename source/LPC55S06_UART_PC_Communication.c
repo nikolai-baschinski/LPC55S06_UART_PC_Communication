@@ -17,6 +17,7 @@ int main(void)
 
   while (1) {
     uint8_t b;
+    GPIO->NOT[0] = (1UL << 9);
     if (UART_read_char(&b)) {
       UART_write_char(b); // mirror it straight back
     }
