@@ -6,10 +6,12 @@
 #include "GPIO.h"
 #include "NVIC.h"
 #include "SPI.h"
+#include "I2C.h"
 #include "lcd.h"
-#include "fonts.h"
+#include "bme.h"
+#include "ProcessImage.h"
 
-uint32_t cntr = 0;
+struct ProcessImage pi={0};
 
 int main(void)
 {
@@ -17,26 +19,18 @@ int main(void)
   init_TIMER();
   init_GPIO();
   init_SPI();
+  init_I2C();
+  init_BME();
   init_LCD();
   init_NVIC();
 
   while (1) {
-    uint8_t c;
-    if (UART_read_char(&c)) {
-      uint8_t x = LCD_get_X_position();
-      uint8_t y = LCD_get_Y_position();
-      LCD_process_char(c);
-      if (c >= 32 && c <= 126) {
-        lcd_CS_enable();
-        Paint_ClearWindows(OFFSET_X + x*CHAR_WIDTH,
-                           OFFSET_Y + y*CHAR_HIGH,
-                           OFFSET_X + (x+1)*CHAR_WIDTH,
-                           OFFSET_Y + (y+1)*CHAR_HIGH, WHITE);
-        Paint_DrawChar(    OFFSET_X + x*CHAR_WIDTH,
-                           OFFSET_Y + y*CHAR_HIGH, c, &Font24, WHITE, BLACK);
-        lcd_CS_disable();
-      }
+    if (pi.call_bme_cyclic_flag == 1) {
+      cyclic_BME(&pi.bme280);
+      pi.call_bme_cyclic_flag = 0;
     }
+    cyclic_UART(&pi);
+    cyclic_LCD(&pi);
   }
   return 0;
 }
@@ -45,10 +39,12 @@ void CTIMER0_IRQHandler(void)
 {
   CTIMER0->IR = CTIMER_IR_MR0INT_MASK;
 
-  if(cntr % 100 == 0) {
+  if(pi.cntr_10ms % 100 == 0) {
     GPIO->NOT[0] = (1UL << 22);
   }
+  if(pi.cntr_10ms % 200 == 0) {
+    pi.call_bme_cyclic_flag = 1;
+  }
 
-  cntr++;
-  GPIO->NOT[0] = (1UL << 9);
+  pi.cntr_10ms++;
 }

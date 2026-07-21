@@ -2,12 +2,20 @@
 #include "TIMER.h"
 #include "GPIO.h"
 #include "SPI.h"
+#include "GUI_Paint.h"
+#include "ProcessImage.h"
+#include "UART.h"
 
 #define CR 0x0D
 #define LF 0x0A
 
 #define COLS 18   // characters per line   (x: 0..17)
-#define ROWS 9    // lines                 (y: 0..8)
+#define ROWS 7    // lines                 (y: 0..6)
+
+#define OFFSET_X 7
+#define OFFSET_Y 12
+#define CHAR_HIGH 24  // font 24 pixels
+#define CHAR_WIDTH 17 // font 24 pixels
 
 struct Cursor {
   uint8_t x;
@@ -287,5 +295,59 @@ void init_LCD()
   Paint_SetClearFuntion(lcd_clear_display);
   Paint_SetDisplayFuntion(lcd_draw_paint);
 
+  Paint_DrawLine(0, 192, 320, 192, BLACK, 2, LINE_STYLE_SOLID);
+
+  Paint_DrawString_EN(10, 210, "T:", &Font20, WHITE, BLACK);
+  Paint_DrawString_EN(120, 210, "P:", &Font20, WHITE, BLACK);
+  Paint_DrawString_EN(230, 210, "H:", &Font20, WHITE, BLACK);
+
+
   lcd_CS_disable();
+}
+
+void cyclic_LCD(struct ProcessImage* p_pi)
+{
+  if(p_pi->bme280.temperature != p_pi->bme280_memory.temperature) {
+    lcd_CS_enable();
+    Paint_ClearWindows(38, 210, 38+14*4, 230, WHITE);
+    Paint_DrawFloatNum(38, 210, p_pi->bme280.temperature, 1, &Font20, WHITE, BLACK);
+    lcd_CS_disable();
+  }
+
+  if(p_pi->bme280.pressure != p_pi->bme280_memory.pressure) {
+    lcd_CS_enable();
+    Paint_ClearWindows(148, 210, 148+14*4, 230, WHITE);
+    Paint_DrawNum(148, 210, p_pi->bme280.pressure, &Font20, WHITE, BLACK);
+    lcd_CS_disable();
+  }
+
+  if(p_pi->bme280.humidity != p_pi->bme280_memory.humidity) {
+    lcd_CS_enable();
+    Paint_ClearWindows(258, 210, 258+14*3, 230, WHITE);
+    Paint_DrawNum(258, 210, p_pi->bme280.humidity, &Font20, WHITE, BLACK);
+    lcd_CS_disable();
+  }
+
+  p_pi->bme280_memory.temperature = p_pi->bme280.temperature;
+  p_pi->bme280_memory.pressure = p_pi->bme280.pressure;
+  p_pi->bme280_memory.humidity = p_pi->bme280.humidity;
+
+
+  uint8_t c;
+  if (UART_read_char(&c)) {
+    uint8_t y = LCD_get_Y_position();
+    uint8_t x = LCD_get_X_position();
+    LCD_process_char(c);
+    if (c >= 32 && c <= 126) {
+      lcd_CS_enable();
+      Paint_ClearWindows(OFFSET_X + x*CHAR_WIDTH,
+                         OFFSET_Y + y*CHAR_HIGH,
+                         OFFSET_X + (x+1)*CHAR_WIDTH,
+                         OFFSET_Y + (y+1)*CHAR_HIGH, WHITE);
+      Paint_DrawChar(    OFFSET_X + x*CHAR_WIDTH,
+                         OFFSET_Y + y*CHAR_HIGH, c, &Font24, WHITE, BLACK);
+      lcd_CS_disable();
+    }
+  }
+
 }
