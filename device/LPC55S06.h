@@ -54,6 +54,7 @@
 #include "PERI_IOCON.h"
 #include "PERI_PMC.h"
 #include "PERI_PUF_SRAM_CTRL.h"
+#include "PERI_SPI.h"
 #include "PERI_SYSCON.h"
 #include "PERI_USART.h"
 

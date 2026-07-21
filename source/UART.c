@@ -6,6 +6,28 @@
 #define IOCON_PIO_DIGITAL_EN 0x0100u // Enables digital function
 #define IOCON_PIO_MODE_PULLUP 0x20u   /*!<@brief Selects pull-up function */
 
+#define RX_BUF_SIZE 256                       // must be a power of two
+static volatile uint8_t  rx_buf[RX_BUF_SIZE];
+static volatile uint16_t rx_head = 0;         // written by the ISR only
+static volatile uint16_t rx_tail = 0;         // written by the main loop only
+
+void FLEXCOMM0_IRQHandler(void)
+{
+  while (USART0->FIFOSTAT & USART_FIFOSTAT_RXNOTEMPTY_MASK) {
+    uint8_t b = (uint8_t)USART0->FIFORD;
+
+    uint16_t next = rx_head + 1u;
+    if (next >= RX_BUF_SIZE) {
+      next = 0;
+    }
+
+    if (next != rx_tail) {    // drop the byte if the ring buffer is full
+      rx_buf[rx_head] = b;
+      rx_head = next;
+    }
+  }
+}
+
 void init_UART()
 {
   SYSCON->FCCLKSELX[0] = SYSCON_FCCLKSEL0_SEL(2);        // clock source for UART: FRO 12 MHz
@@ -27,16 +49,28 @@ void init_UART()
   USART0->CFG = USART_CFG_ENABLE_MASK | USART_CFG_DATALEN(1); // 8N1, ENABLE first!
   USART0->OSR = 12;   // 12 MHz / (13 * 8) = 115384 Baud (+0,16 %)
   USART0->BRG = 7;
+
+  // RX interrupt: fire as soon as a single byte sits in the RX FIFO
+  USART0->FIFOTRIG = (USART0->FIFOTRIG & ~USART_FIFOTRIG_RXLVL_MASK) // RXLVL = 0 -> one entry
+                     | USART_FIFOTRIG_RXLVLENA_MASK;
+  USART0->FIFOINTENSET = USART_FIFOINTENSET_RXLVL_MASK;
 }
 
-// non-blocking: if a byte was received, store it in *p_byte and return 1; else return 0
 uint8_t UART_read_char(uint8_t* p_byte)
 {
-  if (USART0->FIFOSTAT & USART_FIFOSTAT_RXNOTEMPTY_MASK) {
-    *p_byte = (uint8_t)USART0->FIFORD; // low 8 bits = data; upper status flags are discarded
-    return 1;
+  if (rx_head == rx_tail) {
+    return 0;                 // ring buffer empty
   }
-  return 0;
+
+  *p_byte = rx_buf[rx_tail];
+
+  uint16_t next = rx_tail + 1u;
+  if (next >= RX_BUF_SIZE) {
+    next = 0;
+  }
+  rx_tail = next;
+
+  return 1;
 }
 
 // send a single byte, blocking until the TX FIFO has space
