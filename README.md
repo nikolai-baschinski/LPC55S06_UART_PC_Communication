@@ -7,14 +7,22 @@ You can use any other terminal program. The communication settings are:
 - 1 stop bit
 - No parity
 
-![](/Doc/Setup.bmp)
+![](Doc/Setup.bmp)
 
-![](/Doc/Frame.bmp)
+![](Doc/Frame.bmp)
 
-![](/Doc/Baudrate.bmp)
+![](Doc/Baudrate.bmp)
 
-![](/Doc/HTerm.png)
+![](Doc/HTerm.png)
 
+| BME280   | Connector | Function     | Port  | Peripheral |
+|----------|-----------|--------------|-------|------------|
+| VCC      | J10.11    | Vcc (3.3V)   |       |            |
+| GND      | J10.17    | GND          |       |            |
+| SCL      | J13.12    | Clock        | P0_14 | I2C        |
+| SDA      | J13.10    | Data         | P0_13 | I2C        |
+| ADDR     | J12.2     | Vcc (3.3V)   |       |            |
+| CS       | J10.11    | Vcc (3.3V)   |       |            |
 
 | Function | Connector | Connector Pin |
 |----------|-----------|---------------|
@@ -32,4 +40,4 @@ LPC55S06-EVK: https://www.nxp.com/design/design-center/software/development-soft
 
 UART-Adapter: https://www.az-delivery.de/en/products/ftdi-adapter-ft232rl
 
-
+BME280: https://seengreat.com/product/207/bme280-environmental-sensor?srsltid=AfmBOorvlymsT9w0Ea-JBnftBbgADYcXMKpadnPHUyHl7X1wOO5TTgUa
