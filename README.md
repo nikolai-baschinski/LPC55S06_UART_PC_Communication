@@ -7,11 +7,11 @@ The communication settings are:
 - 1 stop bit
 - No parity
 
-![](/Doc/Setup.bmp)
+![](Doc/Setup.bmp)
 
-![](/Doc/HTerm.png)
+![](Doc/HTerm.png)
 
-![](/Doc/Tx_Rx.bmp)
+![](Doc/Tx_Rx.bmp)
 
 
 No overflow can occur in echo mode
@@ -31,7 +31,7 @@ Margin:                                        ~240x on the idle path,
   }
 ```
 
-![](/Doc/Loop-Time_Idle_O3.bmp)
+![](Doc/Loop-Time_Idle_O3.bmp)
 
 
 | Function | Connector | Connector Pin |
@@ -49,5 +49,3 @@ Hardware
 LPC55S06-EVK: https://www.nxp.com/design/design-center/software/development-software/mcuxpresso-software-and-tools-/lpcxpresso-boards/lpcxpresso-development-board-for-lpc55s0x-0x-family-of-mcus:LPC55S06-EVK
 
 UART-Adapter: https://www.az-delivery.de/en/products/ftdi-adapter-ft232rl
-
-
