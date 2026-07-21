@@ -7,13 +7,13 @@ You can use any other terminal program. The communication settings are:
 - 1 stop bit
 - No parity
 
-![](/Doc/Setup.bmp)
+![](Doc/Setup.bmp)
 
-![](/Doc/Frame.bmp)
+![](Doc/Frame.bmp)
 
-![](/Doc/Baudrate.bmp)
+![](Doc/Baudrate.bmp)
 
-![](/Doc/HTerm.png)
+![](Doc/HTerm.png)
 
 
 | Function | Connector | Connector Pin |
