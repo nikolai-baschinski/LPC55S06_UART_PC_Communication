@@ -41,10 +41,7 @@ void CTIMER0_IRQHandler(void)
 
   if(pi.cntr_10ms % 100 == 0) {
     GPIO->NOT[0] = (1UL << 22);
-  }
-  if(pi.cntr_10ms % 200 == 0) {
     pi.call_bme_cyclic_flag = 1;
   }
-
   pi.cntr_10ms++;
 }

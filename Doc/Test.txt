@@ -1,0 +1,4 @@
+Hello LPC55S06!
+Text from a Windows 11 PC via UART.
+ok
+Nikolai Baschinski
