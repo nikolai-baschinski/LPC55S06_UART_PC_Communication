@@ -32,8 +32,8 @@ void init_UART()
 void UART_write(const char* p_text)
 {
   while (*p_text != '\0') {
-    while ((USART0->FIFOSTAT & USART_FIFOSTAT_TXNOTFULL_MASK) == 1); // wait for space in TX FIFO
-      USART0->FIFOWR = *p_text++;
+    while ((USART0->FIFOSTAT & USART_FIFOSTAT_TXNOTFULL_MASK) == 0); // wait while TX FIFO is full
+    USART0->FIFOWR = *p_text++;
   }
 }
 
